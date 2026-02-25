@@ -3,19 +3,21 @@
 
 @import "{{ site.theme }}";
 
+/* Force readable text even if the theme tries to override it */
+html, body, h1, h2, h3, h4, h5, h6, p, li, a { color: inherit; }
+
 :root{
   --bg: #0b1220;
-  --panel: rgba(255,255,255,.04);
-  --panel2: rgba(255,255,255,.06);
+  --panel: rgba(255,255,255,.05);
+  --panel2: rgba(255,255,255,.08);
   --text: #eaf0ff;
-  --muted: rgba(234,240,255,.70);
-  --border: rgba(234,240,255,.10);
+  --muted: rgba(234,240,255,.72);
+  --border: rgba(234,240,255,.12);
   --accent: #8ab4ff;
   --accent2: #34d399;
 }
 
 *{box-sizing:border-box}
-html,body{height:100%}
 body{
   margin:0;
   color:var(--text);
@@ -40,7 +42,7 @@ a:hover{text-decoration:underline}
   position: sticky;
   top: 0;
   z-index: 20;
-  background: rgba(11,18,32,.78);
+  background: rgba(11,18,32,.80);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
 }
@@ -53,61 +55,44 @@ a:hover{text-decoration:underline}
 .brand{
   font-weight: 850;
   letter-spacing: .2px;
-  color: var(--text);
+  color: var(--text) !important;
 }
 .nav a{
-  color: var(--muted);
+  color: var(--muted) !important;
   margin-left: 14px;
   font-weight: 650;
   font-size: 14px;
 }
-.nav a:hover{color:var(--text); text-decoration:none}
+.nav a:hover{color:var(--text) !important; text-decoration:none}
 
-.page-title{display:none;} /* Hide “Home” heading since we have a hero */
-
-.content{padding: 16px 0 50px}
+main.container{ padding: 20px 18px 50px; }
 
 .hero{
-  margin-top: 18px;
+  margin-top: 10px;
   padding: 22px;
   border: 1px solid var(--border);
   border-radius: 18px;
-  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+  background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.03));
 }
 .hero h1{
   margin: 0 0 8px;
   font-size: 34px;
   letter-spacing: -.6px;
+  color: var(--text) !important;
 }
-.hero p{margin:0;color:var(--muted)}
+.hero p{margin:0;color:var(--muted) !important}
 
-.badges{
-  margin-top: 14px;
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-}
+.badges{ margin-top: 14px; display:flex; flex-wrap:wrap; gap:10px; }
 .badge{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  padding: 8px 12px;
-  border-radius: 999px;
+  display:inline-flex; align-items:center; gap:8px;
+  padding: 8px 12px; border-radius: 999px;
   border: 1px solid var(--border);
   background: var(--panel);
-  color: var(--muted);
-  font-size: 13px;
-  font-weight: 700;
+  color: var(--muted) !important;
+  font-size: 13px; font-weight: 700;
 }
-.badge .dot{
-  width:8px;height:8px;border-radius:50%;
-  background: var(--accent);
-  box-shadow: 0 0 0 3px rgba(138,180,255,.18);
-}
-.badge.green .dot{
-  background: var(--accent2);
-  box-shadow: 0 0 0 3px rgba(52,211,153,.14);
-}
+.badge .dot{ width:8px;height:8px;border-radius:50%; background: var(--accent); box-shadow:0 0 0 3px rgba(138,180,255,.18); }
+.badge.green .dot{ background: var(--accent2); box-shadow:0 0 0 3px rgba(52,211,153,.14); }
 
 .grid{
   margin-top: 16px;
@@ -115,7 +100,6 @@ a:hover{text-decoration:underline}
   grid-template-columns: repeat(12, 1fr);
   gap: 14px;
 }
-
 .card{
   grid-column: span 6;
   padding: 18px;
@@ -123,62 +107,34 @@ a:hover{text-decoration:underline}
   border-radius: 16px;
   background: var(--panel);
 }
-.card h3{margin:0 0 6px; font-size: 16px}
-.card p{margin:0; color:var(--muted); font-size: 14px}
+.card h3{margin:0 0 6px; font-size: 16px; color: var(--text) !important;}
+.card p{margin:0; color:var(--muted) !important; font-size: 14px}
 
-.btnrow{
-  margin-top: 12px;
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-}
+.btnrow{ margin-top: 12px; display:flex; flex-wrap:wrap; gap:10px; }
 .btn{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
+  display:inline-flex; align-items:center; justify-content:center;
   padding: 9px 12px;
   border-radius: 12px;
   border: 1px solid var(--border);
   background: var(--panel2);
-  color: var(--text);
+  color: var(--text) !important;
   font-weight: 800;
   font-size: 13px;
 }
-.btn:hover{
-  background: rgba(255,255,255,.10);
-  text-decoration:none;
-}
-.btn.primary{
-  background: rgba(138,180,255,.18);
-  border-color: rgba(138,180,255,.35);
-}
-.btn.primary:hover{background: rgba(138,180,255,.24)}
+.btn:hover{ background: rgba(255,255,255,.12); text-decoration:none; }
+.btn.primary{ background: rgba(138,180,255,.18); border-color: rgba(138,180,255,.35); }
+.btn.primary:hover{ background: rgba(138,180,255,.26); }
 
-hr{
-  border: none;
-  border-top: 1px solid var(--border);
-  margin: 22px 0;
-}
-
-h2{margin: 0 0 10px}
-ul{margin: 10px 0 0; color: var(--muted)}
-
-.post-meta{color:var(--muted); font-size: 13px}
-
-pre, code{
-  background: rgba(255,255,255,.06);
-  border: 1px solid var(--border);
-}
-pre{padding: 12px; border-radius: 12px; overflow:auto}
-code{padding: 2px 6px; border-radius: 8px}
+hr{ border:none; border-top: 1px solid var(--border); margin: 22px 0; }
+.post-meta{ color: var(--muted) !important; font-size: 13px; }
 
 .footer{
   border-top: 1px solid var(--border);
-  color: var(--muted);
+  color: var(--muted) !important;
   padding: 18px 0;
   font-size: 13px;
 }
-.footer .dot{margin:0 8px; opacity:.7}
+.footer .dot{ margin:0 8px; opacity:.7 }
 
 @media (max-width: 780px){
   .card{grid-column: span 12}
