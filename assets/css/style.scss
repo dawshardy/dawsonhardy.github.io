@@ -1,29 +1,30 @@
 ---
 ---
 
-/* Import the theme's base styles, then override */
 @import "{{ site.theme }}";
 
 :root{
-  --bg: #0b0f17;
-  --panel: #0f1625;
-  --text: #e6edf6;
-  --muted: #a7b3c6;
-  --border: rgba(255,255,255,.08);
-  --accent: #7aa2ff;
-  --accent2:#22c55e;
+  --bg: #0b1220;
+  --panel: rgba(255,255,255,.04);
+  --panel2: rgba(255,255,255,.06);
+  --text: #eaf0ff;
+  --muted: rgba(234,240,255,.70);
+  --border: rgba(234,240,255,.10);
+  --accent: #8ab4ff;
+  --accent2: #34d399;
 }
 
 *{box-sizing:border-box}
 html,body{height:100%}
 body{
   margin:0;
-  background: radial-gradient(1200px 800px at 20% -10%, rgba(122,162,255,.18), transparent 60%),
-              radial-gradient(900px 700px at 100% 0%, rgba(34,197,94,.10), transparent 55%),
-              var(--bg);
   color:var(--text);
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
-  line-height:1.6;
+  background:
+    radial-gradient(900px 520px at 15% 0%, rgba(138,180,255,.18), transparent 60%),
+    radial-gradient(900px 520px at 85% 10%, rgba(52,211,153,.12), transparent 60%),
+    var(--bg);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  line-height: 1.6;
 }
 
 a{color:var(--accent); text-decoration:none}
@@ -39,8 +40,8 @@ a:hover{text-decoration:underline}
   position: sticky;
   top: 0;
   z-index: 20;
-  backdrop-filter: blur(10px);
-  background: rgba(11,15,23,.65);
+  background: rgba(11,18,32,.78);
+  backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
 }
 .topbar .container{
@@ -50,34 +51,28 @@ a:hover{text-decoration:underline}
   padding: 14px 18px;
 }
 .brand{
-  font-weight: 800;
+  font-weight: 850;
   letter-spacing: .2px;
   color: var(--text);
 }
 .nav a{
   color: var(--muted);
   margin-left: 14px;
-  font-weight: 600;
+  font-weight: 650;
   font-size: 14px;
 }
 .nav a:hover{color:var(--text); text-decoration:none}
 
-.page-title{
-  margin: 28px 0 14px;
-  font-size: 28px;
-  letter-spacing: -.2px;
-}
+.page-title{display:none;} /* Hide “Home” heading since we have a hero */
 
-.content{
-  padding: 8px 0 42px;
-}
+.content{padding: 16px 0 50px}
 
 .hero{
-  margin-top: 26px;
+  margin-top: 18px;
   padding: 22px;
   border: 1px solid var(--border);
   border-radius: 18px;
-  background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
 }
 .hero h1{
   margin: 0 0 8px;
@@ -85,6 +80,7 @@ a:hover{text-decoration:underline}
   letter-spacing: -.6px;
 }
 .hero p{margin:0;color:var(--muted)}
+
 .badges{
   margin-top: 14px;
   display:flex;
@@ -95,68 +91,86 @@ a:hover{text-decoration:underline}
   display:inline-flex;
   align-items:center;
   gap:8px;
-  padding: 8px 10px;
+  padding: 8px 12px;
   border-radius: 999px;
   border: 1px solid var(--border);
-  background: rgba(15,22,37,.55);
+  background: var(--panel);
   color: var(--muted);
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
 }
 .badge .dot{
   width:8px;height:8px;border-radius:50%;
   background: var(--accent);
-  box-shadow: 0 0 0 3px rgba(122,162,255,.18);
+  box-shadow: 0 0 0 3px rgba(138,180,255,.18);
 }
 .badge.green .dot{
   background: var(--accent2);
-  box-shadow: 0 0 0 3px rgba(34,197,94,.14);
+  box-shadow: 0 0 0 3px rgba(52,211,153,.14);
 }
 
 .grid{
-  margin-top: 18px;
+  margin-top: 16px;
   display:grid;
   grid-template-columns: repeat(12, 1fr);
   gap: 14px;
 }
+
 .card{
   grid-column: span 6;
-  padding: 16px;
+  padding: 18px;
   border: 1px solid var(--border);
   border-radius: 16px;
-  background: rgba(15,22,37,.55);
+  background: var(--panel);
 }
-.card h3{
-  margin: 0 0 6px;
-  font-size: 16px;
+.card h3{margin:0 0 6px; font-size: 16px}
+.card p{margin:0; color:var(--muted); font-size: 14px}
+
+.btnrow{
+  margin-top: 12px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
 }
-.card p{margin:0;color:var(--muted); font-size: 14px}
-.card .btnrow{margin-top:12px; display:flex; gap:10px; flex-wrap:wrap}
 .btn{
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  padding: 8px 11px;
-  border-radius: 10px;
+  padding: 9px 12px;
+  border-radius: 12px;
   border: 1px solid var(--border);
+  background: var(--panel2);
   color: var(--text);
-  background: rgba(255,255,255,.04);
-  font-weight: 700;
+  font-weight: 800;
   font-size: 13px;
 }
-.btn:hover{background: rgba(255,255,255,.07); text-decoration:none}
-
-.list{
-  margin: 10px 0 0;
-  padding-left: 18px;
-  color: var(--muted);
+.btn:hover{
+  background: rgba(255,255,255,.10);
+  text-decoration:none;
 }
+.btn.primary{
+  background: rgba(138,180,255,.18);
+  border-color: rgba(138,180,255,.35);
+}
+.btn.primary:hover{background: rgba(138,180,255,.24)}
 
 hr{
   border: none;
   border-top: 1px solid var(--border);
   margin: 22px 0;
 }
+
+h2{margin: 0 0 10px}
+ul{margin: 10px 0 0; color: var(--muted)}
+
+.post-meta{color:var(--muted); font-size: 13px}
+
+pre, code{
+  background: rgba(255,255,255,.06);
+  border: 1px solid var(--border);
+}
+pre{padding: 12px; border-radius: 12px; overflow:auto}
+code{padding: 2px 6px; border-radius: 8px}
 
 .footer{
   border-top: 1px solid var(--border);
@@ -166,18 +180,7 @@ hr{
 }
 .footer .dot{margin:0 8px; opacity:.7}
 
-/* Blog post tweaks */
-.post-meta{color:var(--muted); font-size: 13px; margin-top: -8px}
-pre, code{
-  background: rgba(255,255,255,.05);
-  border: 1px solid var(--border);
-}
-pre{padding: 12px; border-radius: 12px; overflow:auto}
-code{padding: 2px 6px; border-radius: 8px}
-
-/* Responsive */
 @media (max-width: 780px){
-  .nav{display:flex; flex-wrap:wrap; justify-content:flex-end}
   .card{grid-column: span 12}
   .hero h1{font-size: 28px}
 }
