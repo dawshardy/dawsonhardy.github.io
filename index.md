@@ -9,7 +9,7 @@ title: Home
 
  <hr>
 
-<h2>See what’s in the headphones right now,update live!</h2>
+<h2>See what’s in the headphones right now, updated live!</h2>
 <p style="opacity:.75;margin-top:-6px;">Auto-updates every few minutes.</p>
 
 <div class="spotify-wrap">
