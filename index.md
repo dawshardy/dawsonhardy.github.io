@@ -20,7 +20,7 @@ title: Home
     <h3>Blog</h3>
     <p>Writeups on troubleshooting, configs, and lessons learned.</p>
     <div class="btnrow">
-      <a class="btn" href="./blog">Read posts</a>
+      <a class="btn primary" href="./blog">Read posts</a>
       <a class="btn" href="./projects">See projects</a>
     </div>
   </div>
@@ -43,17 +43,13 @@ title: Home
 <hr>
 
 ## Latest posts
-
-{% raw %}
 {% for post in site.posts limit: 5 %}
-- [{{ post.title }}]({{ post.url }}) — {{ post.date | date: "%b %d, %Y" }}
+- [{{ post.title }}]({{ post.url }}) <span class="post-meta">— {{ post.date | date: "%b %d, %Y" }}</span>
 {% endfor %}
-{% endraw %}
 
 <hr>
 
 ## What I’m building
-
-- 20G UniFi network testing (speed test bottlenecks + repeatable method)
+- 20G UniFi network testing (repeatable test method + bottlenecks)
 - Proxmox homelab stack (DNS, monitoring, logging, backups)
 - Clean SMB VLAN + firewall templates that stay maintainable
