@@ -29,10 +29,11 @@ title: Home
     <h3>Links</h3>
     <p>Stuff I’m watching, reading, and listening to.</p>
     <div class="btnrow">
-      <a class="btn" href="https://musicboard.app/dawshardy" target="_blank">Musicboard</a>
-      <a class="btn" href="https://letterboxd.com/dawshardy/" target="_blank">Letterboxd</a>
-      <a class="btn" href="https://www.goodreads.com/user/show/24054980-dawson-hardy" target="_blank">Goodreads</a>
-      <a class="btn" href="https://www.linkedin.com/in/dawson-hardy-87aa9a13b/" target="_blank">LinkedIn</a>
+      <a class="btn" href="https://musicboard.app/dawshardy" target="_blank" rel="noopener">Musicboard</a>
+      <a class="btn" href="https://open.spotify.com/user/the_wanderlust" target="_blank" rel="noopener">Spotify</a>
+      <a class="btn" href="https://letterboxd.com/dawshardy/" target="_blank" rel="noopener">Letterboxd</a>
+      <a class="btn" href="https://www.goodreads.com/user/show/24054980-dawson-hardy" target="_blank" rel="noopener">Goodreads</a>
+      <a class="btn" href="https://www.linkedin.com/in/dawson-hardy-87aa9a13b/" target="_blank" rel="noopener">LinkedIn</a>
       <a class="btn" href="./links">All links</a>
     </div>
   </div>
@@ -53,6 +54,6 @@ title: Home
 
 ## What I’m building
 
-- 20G UniFi network testing
-- Proxmox homelab stack
-- SMB network templates
+- 20G UniFi network testing (speed test bottlenecks + repeatable method)
+- Proxmox homelab stack (DNS, monitoring, logging, backups)
+- Clean SMB VLAN + firewall templates that stay maintainable
