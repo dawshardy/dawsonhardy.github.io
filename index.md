@@ -7,7 +7,12 @@ title: Home
   <h1>Dawson Hardy</h1>
   <p>Networking, homelab, and the stuff I’m into — new hobbies every week... </p>
 
-  <div class="spotify-wrap">
+ <hr>
+
+<h2>See what’s in the headphones right now,update live!</h2>
+<p style="opacity:.75;margin-top:-6px;">Auto-updates every few minutes.</p>
+
+<div class="spotify-wrap">
   <div id="spotify-now"></div>
 </div>
 
