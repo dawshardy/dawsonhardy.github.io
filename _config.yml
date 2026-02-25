@@ -1,3 +1,10 @@
 title: Dawson Hardy
 description: Networks, homelab, and things I like
 theme: jekyll-theme-minimal
+
+# Nice defaults
+markdown: kramdown
+permalink: /blog/:year/:month/:day/:title/
+
+# Optional (fill in later)
+author: Dawson Hardy
