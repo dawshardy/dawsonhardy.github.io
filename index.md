@@ -5,7 +5,7 @@ title: Home
 
 <div class="home-hero">
   <h1>Dawson Hardy</h1>
-  <p>Networking, homelab, and the stuff I’m into — with notes I can actually find later.</p>
+  <p>Networking, homelab, and the stuff I’m into — new hobbies every week... </p>
 
   <div class="links-row">
     <a class="btn" href="https://musicboard.app/dawshardy" target="_blank" rel="noopener">Musicboard</a>
