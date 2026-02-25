@@ -7,8 +7,9 @@ title: Home
   <h1>Dawson Hardy</h1>
   <p>Networking, homelab, and the stuff I’m into — new hobbies every week... </p>
 
-  <hr>
-<div id="spotify-now"></div>
+  <div class="spotify-wrap">
+  <div id="spotify-now"></div>
+</div>
 
   <div class="links-row">
     <a class="btn" href="https://musicboard.app/dawshardy" target="_blank" rel="noopener">Musicboard</a>
