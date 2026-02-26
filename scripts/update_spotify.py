@@ -1,14 +1,22 @@
+import json
+import os
+import base64
+import requests
+
+OUTPUT_FILE = "assets/data/spotify.json"
+
+
 def get_access_token():
-    client_id = os.environ.get("SPOTIFY_CLIENT_ID", "")
-    client_secret = os.environ.get("SPOTIFY_CLIENT_SECRET", "")
-    refresh_token = os.environ.get("SPOTIFY_REFRESH_TOKEN", "")
 
-    if not client_id or not client_secret or not refresh_token:
-        raise RuntimeError("Missing SPOTIFY_CLIENT_ID / SPOTIFY_CLIENT_SECRET / SPOTIFY_REFRESH_TOKEN in GitHub Actions secrets")
+    client_id = os.environ["SPOTIFY_CLIENT_ID"]
+    client_secret = os.environ["SPOTIFY_CLIENT_SECRET"]
+    refresh_token = os.environ["SPOTIFY_REFRESH_TOKEN"]
 
-    basic = base64.b64encode(f"{client_id}:{client_secret}".encode()).decode()
+    basic = base64.b64encode(
+        f"{client_id}:{client_secret}".encode()
+    ).decode()
 
-    r = requests.post(
+    response = requests.post(
         "https://accounts.spotify.com/api/token",
         headers={
             "Authorization": f"Basic {basic}",
@@ -18,10 +26,51 @@ def get_access_token():
             "grant_type": "refresh_token",
             "refresh_token": refresh_token,
         },
-        timeout=30,
     )
 
-    if r.status_code != 200:
-        raise RuntimeError(f"Spotify token error {r.status_code}: {r.text}")
+    response.raise_for_status()
 
-    return r.json()["access_token"]
+    return response.json()["access_token"]
+
+
+def get_now_playing(token):
+
+    r = requests.get(
+        "https://api.spotify.com/v1/me/player/currently-playing",
+        headers={
+            "Authorization": f"Bearer {token}"
+        },
+    )
+
+    if r.status_code == 204:
+        return {"is_playing": False}
+
+    if r.status_code != 200:
+        return {"is_playing": False}
+
+    data = r.json()
+
+    item = data["item"]
+
+    return {
+        "is_playing": data["is_playing"],
+        "title": item["name"],
+        "artist": item["artists"][0]["name"],
+        "album": item["album"]["name"],
+        "album_art": item["album"]["images"][0]["url"],
+        "url": item["external_urls"]["spotify"],
+    }
+
+
+def main():
+
+    token = get_access_token()
+
+    now_playing = get_now_playing(token)
+
+    with open(OUTPUT_FILE, "w") as f:
+        json.dump(now_playing, f, indent=2)
+
+
+if __name__ == "__main__":
+    main()
