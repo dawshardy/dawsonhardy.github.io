@@ -15,11 +15,12 @@ permissions:
 jobs:
   update:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
+      - name: Checkout (main)
         uses: actions/checkout@v4
         with:
+          ref: main
+          fetch-depth: 0
           persist-credentials: true
 
       - name: Setup Python
@@ -32,6 +33,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests
 
+      - name: Sync with origin/main (fast-forward only)
+        run: |
+          git fetch origin main
+          git checkout main
+          git reset --hard origin/main
+
       - name: Update spotify JSON
         env:
           SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
@@ -40,7 +47,7 @@ jobs:
         run: |
           python scripts/update_spotify.py
 
-      - name: Commit & push
+      - name: Commit & push (or exit clean)
         run: |
           set -e
           git config user.name "github-actions[bot]"
@@ -49,9 +56,11 @@ jobs:
           git add assets/data/spotify.json
 
           if git diff --cached --quiet; then
-            echo "No changes to commit"
+            echo "No changes to commit."
             exit 0
           fi
 
           git commit -m "Update Spotify now playing"
-          git push
+
+          # If push is rejected, fail this run. Next scheduled run will succeed.
+          git push origin HEAD:main
