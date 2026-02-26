@@ -5,7 +5,6 @@ on:
   schedule:
     - cron: "*/5 * * * *"
 
-# Prevent two runs from fighting each other and causing "fetch first"
 concurrency:
   group: spotify-now-playing
   cancel-in-progress: true
@@ -21,7 +20,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0          # needed for rebase
+          fetch-depth: 0
           persist-credentials: true
 
       - name: Setup Python
@@ -42,11 +41,11 @@ jobs:
         run: |
           python scripts/update_spotify.py
 
-      - name: Commit & push (safe)
+      - name: Commit & push (retry-safe)
         run: |
           set -e
 
-          # If nothing changed, stop here
+          # Nothing changed? Stop cleanly.
           if git diff --quiet; then
             echo "No changes to commit."
             exit 0
@@ -55,15 +54,24 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Always sync with remote before committing/pushing
-          git fetch origin main
-          git rebase origin/main
-
           git add assets/data/spotify.json
           git commit -m "Update Spotify now playing"
 
-          # Rebase again in case another push happened between commit and push
-          git fetch origin main
-          git rebase origin/main
+          # Retry loop to avoid 'fetch first' races
+          for i in 1 2 3 4 5 6; do
+            echo "Push attempt $i..."
 
-          git push origin HEAD:main
+            git fetch origin main
+            git rebase origin/main || (git rebase --abort && exit 1)
+
+            if git push origin HEAD:main; then
+              echo "Push succeeded."
+              exit 0
+            fi
+
+            echo "Push failed (likely remote updated). Waiting 3s then retry..."
+            sleep 3
+          done
+
+          echo "ERROR: Push failed after retries."
+          exit 1
