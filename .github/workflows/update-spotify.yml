@@ -33,11 +33,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests
 
-      - name: Sync with origin/main (fast-forward only)
+      # Always start clean from origin/main
+      - name: Sync clean to origin/main
         run: |
           git fetch origin main
           git checkout main
           git reset --hard origin/main
+          git clean -fd
 
       - name: Update spotify JSON
         env:
@@ -47,12 +49,13 @@ jobs:
         run: |
           python scripts/update_spotify.py
 
-      - name: Commit & push (or exit clean)
+      - name: Commit & push (retry on fetch-first)
         run: |
           set -e
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+          # Only commit the file we care about
           git add assets/data/spotify.json
 
           if git diff --cached --quiet; then
@@ -62,5 +65,19 @@ jobs:
 
           git commit -m "Update Spotify now playing"
 
-          # If push is rejected, fail this run. Next scheduled run will succeed.
-          git push origin HEAD:main
+          # Retry push if remote moved ("fetch first")
+          for i in 1 2 3; do
+            echo "Push attempt $i..."
+            if git push origin HEAD:main; then
+              echo "Push succeeded."
+              exit 0
+            fi
+
+            echo "Push rejected. Re-syncing and retrying..."
+            git fetch origin main
+            # Rebase our commit on top of latest main, even if working tree has changes (autostash)
+            git pull --rebase --autostash origin main
+          done
+
+          echo "Push failed after retries."
+          exit 1
