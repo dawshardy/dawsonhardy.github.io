@@ -3,32 +3,33 @@ name: Update Spotify Now Playing
 on:
   workflow_dispatch:
   schedule:
-    - cron: "*/5 * * * *"  # every 5 minutes
+    - cron: "*/5 * * * *"
+
+concurrency:
+  group: spotify-json
+  cancel-in-progress: true
 
 permissions:
   contents: write
-
-concurrency:
-  group: spotify-now-playing
-  cancel-in-progress: true
 
 jobs:
   update:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+
+      - name: Checkout repo
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Install deps
-        run: python -m pip install --upgrade pip requests
+      - name: Install dependencies
+        run: pip install requests
 
       - name: Update spotify JSON
         env:
@@ -37,18 +38,14 @@ jobs:
           SPOTIFY_REFRESH_TOKEN: ${{ secrets.SPOTIFY_REFRESH_TOKEN }}
         run: python scripts/update_spotify.py
 
-      - name: Commit changes
+      - name: Sync with repo
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          # Pull latest to avoid non-fast-forward push failures
           git pull --rebase origin main
 
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
           git add assets/data/spotify.json
-
-          # If nothing changed, don't fail the workflow
-          git diff --cached --quiet && echo "No changes to commit" && exit 0
-
-          git commit -m "Update Spotify now playing"
+          git commit -m "Update Spotify now playing" || exit 0
           git push origin main
