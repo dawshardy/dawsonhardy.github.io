@@ -1,4 +1,4 @@
-name: Update Spotify is Now Playing
+name: Update Spotify Now Playing
 
 on:
   workflow_dispatch:
@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout (full history)
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -33,12 +33,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests
 
-      # ✅ CRITICAL: make the workspace EXACTLY match origin/main BEFORE editing files
+      # Make workspace EXACTLY match origin/main BEFORE editing files
       - name: Sync workspace to origin/main (clean)
         run: |
           set -e
           git fetch origin main
-          git checkout main
+          # Force local main to track origin/main, even if checkout gave us detached HEAD
+          git checkout -B main origin/main
           git reset --hard origin/main
           git clean -fd
 
@@ -50,7 +51,7 @@ jobs:
         run: |
           python scripts/update_spotify.py
 
-      - name: Commit & push
+      - name: Commit & push (retry-safe)
         run: |
           set -e
 
@@ -59,7 +60,6 @@ jobs:
 
           git add assets/data/spotify.json
 
-          # If nothing changed, exit cleanly
           if git diff --cached --quiet; then
             echo "No changes to commit."
             exit 0
@@ -67,9 +67,9 @@ jobs:
 
           git commit -m "Update Spotify now playing"
 
-          # Push, and if it gets rejected, rebase + retry a few times
+          # Try pushing; if rejected, rebase and retry a few times
           for i in 1 2 3 4 5; do
-            if git push origin HEAD:main; then
+            if git push origin main; then
               echo "Pushed successfully."
               exit 0
             fi
