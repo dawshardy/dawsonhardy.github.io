@@ -40,10 +40,10 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
 
-          git add assets/data/spotify.json
+          git fetch origin
+          git reset --hard origin/main
 
+          git add assets/data/spotify.json
           git commit -m "Update Spotify now playing" || echo "No changes"
 
-          git pull --rebase
-
-          git push
+          git push origin HEAD:main
