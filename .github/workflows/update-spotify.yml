@@ -2,8 +2,9 @@ name: Update Spotify Now Playing
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "*/5 * * * *"
+  # Uncomment after it's working:
+  # schedule:
+  #   - cron: "*/5 * * * *"
 
 concurrency:
   group: spotify-now-playing
@@ -17,9 +18,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout (full history)
+      - name: Checkout (main)
         uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 0
           persist-credentials: true
 
@@ -33,13 +35,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests
 
-      # Make workspace EXACTLY match origin/main BEFORE editing files
+      # Make workspace EXACTLY match origin/main BEFORE we modify any files
       - name: Sync workspace to origin/main (clean)
         run: |
           set -e
           git fetch origin main
-          # Force local main to track origin/main, even if checkout gave us detached HEAD
-          git checkout -B main origin/main
           git reset --hard origin/main
           git clean -fd
 
@@ -51,10 +51,9 @@ jobs:
         run: |
           python scripts/update_spotify.py
 
-      - name: Commit & push (retry-safe)
+      - name: Commit & push (retry)
         run: |
           set -e
-
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
@@ -67,15 +66,16 @@ jobs:
 
           git commit -m "Update Spotify now playing"
 
-          # Try pushing; if rejected, rebase and retry a few times
+          # retry loop for race conditions
           for i in 1 2 3 4 5; do
-            if git push origin main; then
+            git fetch origin main
+            git rebase origin/main
+            if git push origin HEAD:main; then
               echo "Pushed successfully."
               exit 0
             fi
-            echo "Push rejected (attempt $i). Rebasing and retrying..."
-            git fetch origin main
-            git rebase origin/main
+            echo "Push failed (attempt $i). Retrying..."
+            sleep 2
           done
 
           echo "Failed to push after retries."
