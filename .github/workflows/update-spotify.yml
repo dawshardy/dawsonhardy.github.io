@@ -5,6 +5,11 @@ on:
   schedule:
     - cron: "*/5 * * * *"
 
+# prevents overlapping runs fighting each other
+concurrency:
+  group: spotify-now-playing
+  cancel-in-progress: true
+
 permissions:
   contents: write
 
@@ -13,37 +18,45 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
-      - name: Checkout repo
+      - name: Checkout
         uses: actions/checkout@v4
         with:
-          persist-credentials: true
           fetch-depth: 0
+          persist-credentials: true
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.x"
 
       - name: Install deps
         run: pip install requests
 
       - name: Update spotify JSON
-        run: python scripts/update_spotify.py
         env:
           SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
           SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
           SPOTIFY_REFRESH_TOKEN: ${{ secrets.SPOTIFY_REFRESH_TOKEN }}
+        run: python scripts/update_spotify.py
 
       - name: Commit and push
         run: |
+          set -e
           git config user.name "github-actions"
           git config user.email "actions@github.com"
 
-          git fetch origin
-          git reset --hard origin/main
-
           git add assets/data/spotify.json
-          git commit -m "Update Spotify now playing" || echo "No changes"
 
-          git push origin HEAD:main
+          # If nothing changed, stop cleanly.
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git commit -m "Update Spotify now playing"
+
+          # Pull latest and rebase to avoid non-fast-forward
+          git pull --rebase origin main
+
+          # Push. If someone slipped a commit in, rebase again once and retry.
+          git push origin HEAD:main || (git pull --rebase origin main && git push origin HEAD:main)
