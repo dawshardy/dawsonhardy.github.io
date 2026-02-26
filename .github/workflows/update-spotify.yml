@@ -1,9 +1,13 @@
-name: Update Spotify Now Playing
+name: Update Spotify is Now Playing
 
 on:
   workflow_dispatch:
   schedule:
     - cron: "*/5 * * * *"
+
+concurrency:
+  group: spotify-now-playing
+  cancel-in-progress: true
 
 permissions:
   contents: write
@@ -13,18 +17,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout clean main
+      - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: main
           fetch-depth: 0
-
-      # CRITICAL: clean reset BEFORE running script
-      - name: Reset to latest origin/main
-        run: |
-          git fetch origin main
-          git reset --hard origin/main
-          git clean -fd
+          persist-credentials: true
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -36,7 +33,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests
 
-      - name: Run spotify updater
+      # ✅ CRITICAL: make the workspace EXACTLY match origin/main BEFORE editing files
+      - name: Sync workspace to origin/main (clean)
+        run: |
+          set -e
+          git fetch origin main
+          git checkout main
+          git reset --hard origin/main
+          git clean -fd
+
+      - name: Update spotify JSON
         env:
           SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
           SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
@@ -44,18 +50,33 @@ jobs:
         run: |
           python scripts/update_spotify.py
 
-      - name: Commit and Push
+      - name: Commit & push
         run: |
+          set -e
+
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
           git add assets/data/spotify.json
 
+          # If nothing changed, exit cleanly
           if git diff --cached --quiet; then
-            echo "No changes"
+            echo "No changes to commit."
             exit 0
           fi
 
           git commit -m "Update Spotify now playing"
 
-          git push origin main
+          # Push, and if it gets rejected, rebase + retry a few times
+          for i in 1 2 3 4 5; do
+            if git push origin HEAD:main; then
+              echo "Pushed successfully."
+              exit 0
+            fi
+            echo "Push rejected (attempt $i). Rebasing and retrying..."
+            git fetch origin main
+            git rebase origin/main
+          done
+
+          echo "Failed to push after retries."
+          exit 1
