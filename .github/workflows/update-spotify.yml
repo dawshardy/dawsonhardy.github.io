@@ -17,19 +17,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
-      - name: Checkout repo
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          persist-credentials: true
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Install dependencies
+      - name: Install deps
         run: pip install requests
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      # Always start from the latest main so we don't build on stale commits
+      - name: Sync to latest main
+        run: |
+          git fetch origin main
+          git checkout main
+          git reset --hard origin/main
 
       - name: Update spotify JSON
         env:
@@ -38,14 +50,24 @@ jobs:
           SPOTIFY_REFRESH_TOKEN: ${{ secrets.SPOTIFY_REFRESH_TOKEN }}
         run: python scripts/update_spotify.py
 
-      - name: Sync with repo
+      - name: Commit
         run: |
-          git pull --rebase origin main
-
-      - name: Commit and push
-        run: |
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
           git add assets/data/spotify.json
-          git commit -m "Update Spotify now playing" || exit 0
-          git push origin main
+          git diff --cached --quiet && echo "No changes to commit" && exit 0
+          git commit -m "Update Spotify now playing"
+
+      # Fetch/rebase + retry push to survive "main moved" situations
+      - name: Push (rebase + retry)
+        run: |
+          for i in 1 2 3 4 5; do
+            git fetch origin main
+            git rebase origin/main || (git rebase --abort && exit 1)
+            if git push origin HEAD:main; then
+              echo "Push succeeded"
+              exit 0
+            fi
+            echo "Push failed (attempt $i). Retrying in 3s..."
+            sleep 3
+          done
+          echo "Push failed after retries"
+          exit 1
