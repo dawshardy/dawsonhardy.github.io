@@ -22,6 +22,6 @@ title: Home
     <a class="btn" href="https://letterboxd.com/dawshardy/" target="_blank" rel="noopener">Letterboxd</a>
     <a class="btn" href="https://www.goodreads.com/user/show/24054980-dawson-hardy" target="_blank" rel="noopener">Goodreads</a>
     <a class="btn" href="https://www.linkedin.com/in/dawson-hardy-87aa9a13b/" target="_blank" rel="noopener">LinkedIn</a>
-    <a class="btn" href="./links">All links</a>
+    <a class="btn" href="https://github.com/dawshardy/" target="_blank" rel="noopener">GitHub</a>
   </div>
 </div>
