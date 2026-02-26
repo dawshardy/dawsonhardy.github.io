@@ -33,6 +33,15 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests
 
+      #  IMPORTANT: sync FIRST (clean repo), THEN create file changes
+      - name: Sync with main (rebase)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git checkout main
+          git pull --rebase origin main
+
       - name: Update spotify JSON
         env:
           SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
@@ -41,37 +50,30 @@ jobs:
         run: |
           python scripts/update_spotify.py
 
-      - name: Commit & push (retry-safe)
+      - name: Commit & push (safe)
         run: |
           set -e
 
-          # Nothing changed? Stop cleanly.
+          # If nothing changed, exit cleanly
           if git diff --quiet; then
             echo "No changes to commit."
             exit 0
           fi
 
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
           git add assets/data/spotify.json
           git commit -m "Update Spotify now playing"
 
-          # Retry loop to avoid 'fetch first' races
+          # Retry push a few times (handles races)
           for i in 1 2 3 4 5 6; do
-            echo "Push attempt $i..."
-
-            git fetch origin main
-            git rebase origin/main || (git rebase --abort && exit 1)
-
             if git push origin HEAD:main; then
               echo "Push succeeded."
               exit 0
             fi
 
-            echo "Push failed (likely remote updated). Waiting 3s then retry..."
-            sleep 3
+            echo "Push failed (attempt $i). Re-syncing and retrying..."
+            git fetch origin main
+            git pull --rebase origin main
           done
 
-          echo "ERROR: Push failed after retries."
+          echo "Push failed after retries."
           exit 1
