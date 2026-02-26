@@ -20,7 +20,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
           persist-credentials: true
 
       - name: Setup Python
@@ -33,15 +32,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests
 
-      # Sync FIRST (clean repo), THEN create file changes
-      - name: Sync with main (rebase)
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git fetch origin main
-          git checkout main
-          git pull --rebase origin main
-
       - name: Update spotify JSON
         env:
           SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
@@ -52,22 +42,15 @@ jobs:
 
       - name: Commit & push
         run: |
-          set -e
-
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
           git add assets/data/spotify.json
 
-          # If nothing to commit, exit clean
           if git diff --cached --quiet; then
             echo "No changes to commit"
             exit 0
           fi
 
           git commit -m "Update Spotify now playing"
-
-          # Pull/rebase after commit so we’re not rebasing with unstaged changes
-          git pull --rebase origin main
-
-          git push origin main
+          git push
